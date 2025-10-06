@@ -1,0 +1,38 @@
+import vrplib
+import random
+
+def generate_random_solution(instance_name):
+    """
+    Generates a random solution for the VRP
+
+    Return:
+        List[List[int]]: random solution for VRP
+        Dict[str, Any]: instance subject to analysis
+    """
+    # load instance
+    instance = vrplib.read_instance("instances/" + instance_name)
+
+    # load parameters
+    capacity = instance["capacity"]
+    demands = instance["demand"]  # demand[0] is depot
+    customers = list(range(1, len(demands)))  # customer indices start from 1
+
+    random.shuffle(customers)
+
+    routes = []
+    current_route = []
+    current_load = 0
+
+    for customer in customers:
+        if current_load + demands[customer] <= capacity:
+            current_route.append(customer)
+            current_load += demands[customer]
+        else:
+            routes.append(current_route)
+            current_route = [customer]
+            current_load = demands[customer]
+    
+    if current_route:
+        routes.append(current_route)
+
+    return routes, instance
